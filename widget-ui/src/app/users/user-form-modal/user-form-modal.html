@@ -1,0 +1,62 @@
+<div class="panel-backdrop" (click)="onCancel()">
+  <div class="panel-container" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" [attr.aria-labelledby]="'panel-title'">
+    <div class="panel-header">
+      <h3 id="panel-title">{{ user() ? 'Edit User' : 'Add User' }}</h3>
+      <button class="close-icon" (click)="onCancel()" aria-label="Close panel">&times;</button>
+    </div>
+    
+    <form [formGroup]="userForm" (ngSubmit)="onSubmit()" class="panel-form">
+      <div class="panel-body">
+        
+        <div class="form-group">
+          <label for="firstName">First Name</label>
+          <input id="firstName" type="text" formControlName="firstName" placeholder="Enter first name" />
+          @if (userForm.get('firstName')?.touched && userForm.get('firstName')?.errors?.['required']) {
+            <span class="error-msg">First name is required</span>
+          }
+          @if (userForm.get('firstName')?.touched && userForm.get('firstName')?.errors?.['minlength']) {
+            <span class="error-msg">Min length is 2 characters</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="lastName">Last Name</label>
+          <input id="lastName" type="text" formControlName="lastName" placeholder="Enter last name" />
+          @if (userForm.get('lastName')?.touched && userForm.get('lastName')?.errors?.['required']) {
+            <span class="error-msg">Last name is required</span>
+          }
+          @if (userForm.get('lastName')?.touched && userForm.get('lastName')?.errors?.['minlength']) {
+            <span class="error-msg">Min length is 2 characters</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input id="email" type="email" formControlName="email" placeholder="e.g. john.doe@company.com" />
+          @if (userForm.get('email')?.touched && userForm.get('email')?.errors?.['required']) {
+            <span class="error-msg">Email is required</span>
+          }
+          @if (userForm.get('email')?.touched && userForm.get('email')?.errors?.['email']) {
+            <span class="error-msg">Please enter a valid email address</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="status">Status</label>
+          <select id="status" formControlName="status">
+            <option value="ACTIVE">Active</option>
+            <option value="INACTIVE">Inactive</option>
+          </select>
+        </div>
+
+      </div>
+
+      <div class="panel-footer">
+        <button type="button" class="btn-secondary" (click)="onCancel()">Cancel</button>
+        <button type="submit" class="btn-primary">
+          {{ user() ? 'Save Changes' : 'Create User' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

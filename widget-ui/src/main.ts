@@ -1,6 +1,20 @@
-import { bootstrapApplication } from '@angular/platform-browser';
-import { appConfig } from './app/app.config';
-import { App } from './app/app';
+import { createApplication } from '@angular/platform-browser';
+import { createCustomElement } from '@angular/elements';
 
-bootstrapApplication(App, appConfig)
-  .catch((err) => console.error(err));
+import { appConfig } from './app/app.config';
+import { Widget } from './app/widget/widget';
+
+(async () => {
+  const app = await createApplication(appConfig);
+
+  const element = createCustomElement(Widget, {
+    injector: app.injector,
+  });
+
+  if (!customElements.get('user-management-widget')) {
+    customElements.define(
+      'user-management-widget',
+      element,
+    );
+  }
+})();

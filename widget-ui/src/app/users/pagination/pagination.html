@@ -1,0 +1,24 @@
+<div class="pagination-container">
+  <div class="pagination-info">
+    Showing {{ showingStart() }} to {{ showingEnd() }} of {{ totalItems() }} users
+  </div>
+  <div class="pagination-controls" role="navigation" aria-label="Pagination Navigation">
+    <button class="nav-btn" (click)="prevPage()" [disabled]="currentPage() === 1" aria-label="Previous page">
+      &lsaquo;
+    </button>
+    
+    @for (page of pages(); track $index) {
+      @if (page === '...') {
+        <span class="ellipsis">&hellip;</span>
+      } @else {
+        <button class="page-btn" [class.active]="page === currentPage()" (click)="goToPage(page)">
+          {{ page }}
+        </button>
+      }
+    }
+
+    <button class="nav-btn" (click)="nextPage()" [disabled]="currentPage() === totalPages()" aria-label="Next page">
+      &rsaquo;
+    </button>
+  </div>
+</div>

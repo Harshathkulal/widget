@@ -1,0 +1,140 @@
+<div class="widget-root" [class.dark]="theme() === 'dark'">
+
+  <!-- First load -->
+  @if (widgetState() === 'init') {
+  <div class="widget-header">
+    <div>
+      <h2 class="widget-title">User Management</h2>
+      <p class="widget-subtitle">Loading...</p>
+    </div>
+  </div>
+  <div class="widget-toolbar shimmer-toolbar">
+    <div class="shimmer-bar" style="width:240px; height:36px; border-radius:6px;"></div>
+    <div class="shimmer-bar" style="width:110px; height:36px; border-radius:6px;"></div>
+  </div>
+  <app-loading-skeleton [rows]="pageSize()" />
+  }
+
+  <!-- Error State -->
+  @if (widgetState() === 'error') {
+  <div class="state-banner error-banner" role="alert">
+    <div class="banner-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+        <circle cx="12" cy="12" r="10" />
+        <line x1="12" y1="8" x2="12" y2="12" />
+        <line x1="12" y1="16" x2="12.01" y2="16" />
+      </svg>
+    </div>
+    <div class="banner-content">
+      <strong>Widget Error</strong>
+      <p>{{ errorMessage() }}</p>
+    </div>
+    <button class="retry-btn" (click)="retryInit()">Retry</button>
+  </div>
+  }
+
+  <!-- Session Expired -->
+  @if (widgetState() === 'session-expired') {
+  <div class="state-banner warn-banner" role="alert">
+    <div class="banner-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+      </svg>
+    </div>
+    <div class="banner-content">
+      <strong>Session Expired</strong>
+      <p>Your widget session has expired. Please reinitialize.</p>
+    </div>
+    <button class="retry-btn" (click)="retryInit()">Reconnect</button>
+  </div>
+  }
+
+  <!-- Main UI. Keep this mounted while searching so the input does not disappear. -->
+  @if (widgetState() === 'ready' || widgetState() === 'loading') {
+  <div class="widget-header">
+    <div>
+      <h2 class="widget-title">User Management</h2>
+      <p class="widget-subtitle">
+        @if (widgetState() === 'loading' && totalItems() === 0) {
+          Loading users...
+        } @else {
+          {{ totalItems() }} total users
+        }
+      </p>
+    </div>
+    <button class="btn-add" (click)="openAddUserModal()" id="add-user-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14">
+        <line x1="12" y1="5" x2="12" y2="19" />
+        <line x1="5" y1="12" x2="19" y2="12" />
+      </svg>
+      Add User
+    </button>
+  </div>
+
+  <!-- Bulk Actions Bar -->
+  @if (hasSelection()) {
+  <div class="bulk-bar" role="toolbar" aria-label="Bulk actions">
+    <span class="bulk-count">{{ selectionCount() }} selected</span>
+    <div class="bulk-actions">
+      <button class="bulk-btn activate-btn" (click)="openBulkStatusDialog('ACTIVE')">
+        Set Active
+      </button>
+      <button class="bulk-btn deactivate-btn" (click)="openBulkStatusDialog('INACTIVE')">
+        Set Inactive
+      </button>
+      <button class="bulk-btn delete-btn" (click)="openBulkDeleteDialog()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+        </svg>
+        Delete {{ selectionCount() }}
+      </button>
+    </div>
+  </div>
+  }
+
+  <!-- Toolbar -->
+  <div class="widget-toolbar">
+    <app-user-search (search)="onSearch($event)" />
+    @if (widgetState() === 'loading') {
+    <span class="inline-loading" aria-live="polite">Updating...</span>
+    }
+  </div>
+
+  <!-- Results -->
+  @if (widgetState() === 'loading' && users().length === 0) {
+  <app-loading-skeleton [rows]="pageSize()" />
+  } @else {
+  <div class="results-area" [class.is-updating]="widgetState() === 'loading'">
+    <app-user-table [users]="users()" [sortConfig]="sortConfig()" (edit)="openEditUserModal($event)"
+      (delete)="openDeleteDialog($event)" (viewHistory)="openAuditPanel($event)" (sortChange)="onSortChange($event)"
+      (selectionChange)="onSelectionChange($event)" />
+  </div>
+  }
+
+  <!-- Pagination -->
+  <app-pagination [currentPage]="currentPage()" [totalItems]="totalItems()" [pageSize]="pageSize()"
+    (pageChange)="onPageChange($event)" />
+  }
+
+  <!-- Modals / Panels (always rendered above content) -->
+  @if (showFormModal()) {
+  <app-user-form-modal [user]="editingUser()" (save)="onSaveUser($event)" (cancel)="closeFormModal()" />
+  }
+
+  @if (showConfirmDialog()) {
+  <app-confirm-dialog [title]="confirmTitle" [message]="confirmMessage"
+    [confirmText]="bulkDeletePending() || deletingUser() ? 'Delete' : 'Confirm'"
+    [isDanger]="!!(bulkDeletePending() || deletingUser())" (confirm)="onConfirmAction()"
+    (cancel)="closeConfirmDialog()" />
+  }
+
+  @if (showAuditPanel() && auditUser()) {
+  <app-audit-panel [userId]="auditUser()!.id" [userName]="auditUser()!.firstName + ' ' + auditUser()!.lastName"
+    (close)="closeAuditPanel()" />
+  }
+
+  <!-- Toast Container -->
+  <app-toast />
+</div>

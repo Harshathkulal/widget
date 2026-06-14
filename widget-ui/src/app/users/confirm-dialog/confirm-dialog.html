@@ -1,0 +1,17 @@
+<div class="modal-backdrop" (click)="onCancel()">
+  <div class="modal-container" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" [attr.aria-labelledby]="'dialog-title'">
+    <div class="modal-header">
+      <h3 id="dialog-title">{{ title() }}</h3>
+      <button class="close-icon" (click)="onCancel()" aria-label="Close dialog">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p>{{ message() }}</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="onCancel()">{{ cancelText() }}</button>
+      <button class="btn-primary" [class.danger]="isDanger()" (click)="onConfirm()">
+        {{ confirmText() }}
+      </button>
+    </div>
+  </div>
+</div>

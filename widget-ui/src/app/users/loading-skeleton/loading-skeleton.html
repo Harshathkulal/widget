@@ -1,0 +1,34 @@
+<div class="skeleton-table">
+  <div class="skeleton-header">
+    <div class="skeleton-col col-checkbox"></div>
+    <div class="skeleton-col col-name"></div>
+    <div class="skeleton-col col-email"></div>
+    <div class="skeleton-col col-status"></div>
+    <div class="skeleton-col col-date"></div>
+    <div class="skeleton-col col-actions"></div>
+  </div>
+  <div class="skeleton-body">
+    @for (row of getSkeletonRows(); track $index) {
+      <div class="skeleton-row">
+        <div class="skeleton-cell cell-checkbox">
+          <div class="shimmer check-box"></div>
+        </div>
+        <div class="skeleton-cell cell-name">
+          <div class="shimmer text-bar width-medium"></div>
+        </div>
+        <div class="skeleton-cell cell-email">
+          <div class="shimmer text-bar width-large"></div>
+        </div>
+        <div class="skeleton-cell cell-status">
+          <div class="shimmer text-bar width-small"></div>
+        </div>
+        <div class="skeleton-cell cell-date">
+          <div class="shimmer text-bar width-small"></div>
+        </div>
+        <div class="skeleton-cell cell-actions">
+          <div class="shimmer actions-bar"></div>
+        </div>
+      </div>
+    }
+  </div>
+</div>

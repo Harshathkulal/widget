@@ -1,0 +1,244 @@
+:host {
+  --widget-bg: #ffffff;
+  --widget-surface: #f8fafc;
+  --widget-surface-hover: #f1f5f9;
+  --widget-border: #e2e8f0;
+  --widget-border-strong: #cbd5e1;
+  --widget-text: #1e293b;
+  --widget-text-muted: #64748b;
+  --widget-primary: #4f46e5;
+  --widget-primary-hover: #4338ca;
+  --widget-danger: #dc2626;
+  --widget-success: #059669;
+  --widget-warning: #d97706;
+  --widget-radius: 8px;
+  --widget-shadow: 0 1px 3px rgba(15, 23, 42, 0.12);
+  --widget-font: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  display: block;
+  max-width: 1100px;
+  font-family: var(--widget-font);
+  color: var(--widget-text);
+}
+
+:host .dark,
+:host(.dark) {
+  --widget-bg: #0f172a;
+  --widget-surface: #1e293b;
+  --widget-surface-hover: #263347;
+  --widget-border: #334155;
+  --widget-border-strong: #475569;
+  --widget-text: #f8fafc;
+  --widget-text-muted: #94a3b8;
+  --widget-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+}
+
+.widget-root {
+  background: var(--widget-bg);
+  border: 1px solid var(--widget-border);
+  border-radius: var(--widget-radius);
+  box-shadow: var(--widget-shadow);
+  overflow: hidden;
+}
+
+.widget-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 20px;
+  background: var(--widget-surface);
+  border-bottom: 1px solid var(--widget-border);
+}
+
+.widget-title {
+  margin: 0 0 2px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.widget-subtitle {
+  margin: 0;
+  color: var(--widget-text-muted);
+  font-size: 13px;
+}
+
+.btn-add,
+.bulk-btn,
+.retry-btn {
+  border-radius: 6px;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.btn-add {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 14px;
+  border: 0;
+  background: var(--widget-primary);
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.btn-add:hover {
+  background: var(--widget-primary-hover);
+}
+
+.bulk-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 20px;
+  background: #eef2ff;
+  border-bottom: 1px solid #c7d2fe;
+}
+
+.dark .bulk-bar {
+  background: rgba(79, 70, 229, 0.18);
+  border-bottom-color: rgba(129, 140, 248, 0.35);
+}
+
+.bulk-count {
+  color: var(--widget-primary);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.bulk-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.bulk-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  border: 1px solid var(--widget-border);
+  background: var(--widget-bg);
+  color: var(--widget-text);
+}
+
+.bulk-btn:hover {
+  background: var(--widget-surface-hover);
+}
+
+.bulk-btn.delete-btn {
+  color: var(--widget-danger);
+}
+
+.widget-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  background: var(--widget-bg);
+  border-bottom: 1px solid var(--widget-border);
+}
+
+.inline-loading {
+  margin-left: auto;
+  color: var(--widget-text-muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.results-area {
+  transition: opacity 0.15s ease;
+}
+
+.results-area.is-updating {
+  opacity: 0.65;
+  pointer-events: none;
+}
+
+.shimmer-toolbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 20px;
+  background: var(--widget-bg);
+  border-bottom: 1px solid var(--widget-border);
+}
+
+.shimmer-bar {
+  background: linear-gradient(90deg, var(--widget-border), var(--widget-surface), var(--widget-border));
+  background-size: 200% 100%;
+  animation: shimmer-loading 1.3s infinite linear;
+}
+
+.state-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px;
+  padding: 16px;
+  border: 1px solid;
+  border-radius: 8px;
+}
+
+.banner-content {
+  flex: 1;
+}
+
+.banner-content strong {
+  display: block;
+  margin-bottom: 2px;
+  font-size: 14px;
+}
+
+.banner-content p {
+  margin: 0;
+  font-size: 13px;
+}
+
+.error-banner {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #991b1b;
+}
+
+.warn-banner {
+  background: #fffbeb;
+  border-color: #fed7aa;
+  color: #92400e;
+}
+
+.retry-btn {
+  padding: 7px 12px;
+  border: 1px solid currentColor;
+  background: transparent;
+  color: inherit;
+}
+
+@keyframes shimmer-loading {
+  from {
+    background-position: 200% 0;
+  }
+
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@media (max-width: 720px) {
+  .widget-header,
+  .widget-toolbar,
+  .bulk-bar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .btn-add {
+    justify-content: center;
+  }
+
+  .inline-loading {
+    margin-left: 0;
+  }
+}

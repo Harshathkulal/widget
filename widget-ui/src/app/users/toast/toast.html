@@ -1,0 +1,10 @@
+<div class="toast-container">
+  @for (toast of toastService.toasts(); track toast.id) {
+    <div class="toast" [ngClass]="toast.type" role="alert" aria-live="assertive">
+      <span class="message">{{ toast.text }}</span>
+      <button class="close-btn" (click)="toastService.dismiss(toast.id)" aria-label="Close message">
+        &times;
+      </button>
+    </div>
+  }
+</div>
