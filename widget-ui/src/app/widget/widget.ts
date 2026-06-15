@@ -53,7 +53,6 @@ export class Widget implements OnInit, OnDestroy {
   theme = input('light');
   pageSize = input(10);
   apiUrl = input(environment.apiBaseUrl);
-  signature = input('');
 
   // Like injected API clients.
   private readonly userService = inject(UserService);
@@ -103,14 +102,11 @@ export class Widget implements OnInit, OnDestroy {
   private initializeWidget() {
     const appId = this.appId();
     const clientId = this.clientId();
-    const timestamp = Date.now();
-    const nonce = this.generateNonce();
-    const signature = this.signature();
 
     this.widgetAuthService.setApiBaseUrl(this.apiUrl());
 
     const sub = this.widgetAuthService
-      .initSession({ appId, clientId, signature, timestamp, nonce })
+      .initSession({ appId, clientId })
       .subscribe({
         next: () => {
           this.loadUsers();
@@ -124,12 +120,6 @@ export class Widget implements OnInit, OnDestroy {
         },
       });
     this.subscriptions.add(sub);
-  }
-
-  private generateNonce(): string {
-    return Array.from(crypto.getRandomValues(new Uint8Array(16)))
-      .map((b) => b.toString(16).padStart(2, '0'))
-      .join('');
   }
 
   // ─── Data Loading ──────────────────────────────────────────────────────────

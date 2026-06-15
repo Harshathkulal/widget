@@ -38,11 +38,7 @@ export function isOriginAllowed(
     return true;
   }
 
-  return allowedOrigins.some((allowedOrigin) => {
-    if (allowedOrigin === '*') {
-      return true;
-    }
-
-    return normalizeOrigin(allowedOrigin) === normalizedOrigin;
-  });
+  return allowedOrigins.some(
+    (allowedOrigin) => normalizeOrigin(allowedOrigin) === normalizedOrigin,
+  );
 }

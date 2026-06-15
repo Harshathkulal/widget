@@ -5,7 +5,7 @@
 -- Use this when TypeORM migrations fail or you want a one-shot bootstrap.
 --
 -- Prerequisites:
---   - PostgreSQL 16+ database already exists (docker-compose creates widget_db)
+--   - PostgreSQL 18+ database already exists (docker-compose creates widget_db)
 --   - Default JWT_SECRET must match for client secret decryption:
 --       super-secret-jwt-change-me-in-production
 --
@@ -129,12 +129,10 @@ CREATE TABLE IF NOT EXISTS "widget_sessions" (
   "application_id" uuid NOT NULL,
   "token_hash" character varying NOT NULL,
   "origin" character varying NOT NULL,
-  "nonce" character varying NOT NULL,
   "is_revoked" boolean NOT NULL DEFAULT false,
   "user_agent" character varying,
   "ip_address" character varying,
   "expires_at" TIMESTAMP NOT NULL,
-  CONSTRAINT "UQ_a86a99dd90457567e6b21167333" UNIQUE ("nonce"),
   CONSTRAINT "PK_6071d01fbee6f7e8118ed9c8d9d" PRIMARY KEY ("id")
 );
 

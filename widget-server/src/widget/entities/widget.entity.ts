@@ -24,11 +24,6 @@ export class WidgetSession extends BaseEntity {
   origin!: string;
 
   @Column({
-    unique: true,
-  })
-  nonce!: string;
-
-  @Column({
     name: 'is_revoked',
     default: false,
   })

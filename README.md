@@ -31,7 +31,23 @@ theme="light" page-size="10">
 <script type="module" src="http://localhost:4200/main.js"></script>
 ```
 
-In development the widget sends `dev-mode-bypass-signature`. In production, the embedding app backend must generate the HMAC signature. Do not put the client secret in browser code.
+The widget only needs `app-id` and `client-id` attributes.
+
+## Embed Integration
+
+Copy-paste integration for production:
+
+```html
+<script src="https://cdn.example.com/widget.js"></script>
+
+<user-management-widget
+  app-id="APP_ID"
+  client-id="CLIENT_ID"
+  theme="light"
+  page-size="10">
+</user-management-widget>
+```
+
 
 ## Add A Website
 
@@ -39,13 +55,13 @@ A website is stored as an `applications` row. It belongs to a tenant and contain
 
 - `appName`: friendly name for the website.
 - `clientId`: public ID used by the widget.
-- `clientSecretHash`: encrypted secret used only by backend signing.
+- `clientSecretHash`: encrypted secret retained for potential future enterprise signed mode (not used during widget init).
 - `allowedDomains`: exact origins allowed to embed the widget.
 
-Create a new website/application:
+## Create a new website/application:
 
-## http://localhost:3000/api/setup/register-app
-
+Register: http://localhost:3000/api/setup/register-app
+payload:
 ```powershell
 {
   "email": "angularapp@gmail.com",
@@ -57,7 +73,7 @@ Create a new website/application:
 }
 ```
 
-The script prints the new `app-id`, `client-id`, `client secret`, and embed snippet.
+The script prints the new `app-id`, `client-id`, and embed snippet.
 
 For local development, keep `http://localhost:4200` in `ALLOWED_ORIGINS`. For production, add only the real website origin, for example `https://portal.acme.com`.
 
@@ -76,7 +92,7 @@ Core tables:
 - `tenants`: customer/account boundary.
 - `applications`: one embeddable app per tenant, with `client_id`, encrypted client secret, and allowed origins.
 - `users`: managed users, scoped by `tenant_id` and `application_id`.
-- `widget_sessions`: short-lived widget sessions, storing nonce and token hash for replay/revocation checks.
+- `widget_sessions`: short-lived widget sessions, storing token hash for revocation checks.
 - `audit_logs`: user create/update/delete history.
 - `auth_users`: admin/API users for back-office login.
 
@@ -125,7 +141,6 @@ erDiagram
     uuid application_id FK
     string token_hash
     string origin
-    string nonce
     boolean is_revoked
     timestamp expires_at
   }
@@ -173,41 +188,36 @@ sequenceDiagram
   participant DB as PostgreSQL
 
   Host->>Widget: app-id, client-id, theme, page-size
-  Widget->>API: POST /api/widget/init with timestamp, nonce, signature
+  Widget->>API: POST /api/widget/init with appId, clientId
   API->>DB: find active application
   API->>API: validate origin allow-list
-  API->>API: reject old timestamp or reused nonce
-  API->>API: verify HMAC signature in production
   API->>DB: create widget_session with token hash
   API-->>Widget: short-lived widget JWT
   Widget->>API: CRUD /api/widget/users with Bearer token
   API->>DB: verify session, tenant, application, token hash
 ```
 
-Production signature:
-
-```text
-message = appId + ":" + clientId + ":" + timestamp + ":" + nonce
-signature = hmac_sha256(clientSecret, message)
-```
-
 ## Security Design
 
-- Unauthorized embedding: `Origin` must exactly match an application allowed origin. Prefix matching is intentionally avoided.
-- Replay protection: widget init requires a fresh timestamp and unique nonce.
-- Rate limiting: global Nest throttling is enabled in `AppModule`.
-- Input validation: DTOs use `class-validator`; unknown properties are rejected by the global validation pipe.
-- Token handling: widget JWTs are short lived, sent as Bearer tokens, and verified against the stored session token hash.
-- Revocation: `POST /api/widget/revoke` marks the session revoked.
-- Tenant isolation: all widget user APIs derive `tenantId` and `applicationId` from the verified widget token, never from client input.
-- Secret handling: client secrets are encrypted at rest and must not be exposed in frontend code.
+See [SECURITY.md](./SECURITY.md) for the full security design document.
+
+Summary:
+
+- **Domain allow-listing**: `Origin` must exactly match an application allowed origin. Prefix and wildcard matching are intentionally avoided.
+- **JWT sessions**: short-lived (15 min) widget tokens stored only as SHA-256 hashes.
+- **Rate limiting**: widget init is limited to 5 requests/minute; user APIs to 100 requests/minute.
+- **Input validation**: DTOs use `class-validator`; unknown properties are rejected by the global validation pipe.
+- **Revocation**: `POST /api/widget/revoke` marks the session revoked.
+- **Tenant isolation**: all widget user APIs derive `tenantId` and `applicationId` from the verified widget token, never from client input.
+- **Audit logging**: all user mutations are recorded.
+
 
 ## API Documentation
 
 Widget session:
 
 - `POST /api/widget/init`
-  Body: `{ appId, clientId, signature, timestamp, nonce }`
+  Body: `{ appId, clientId }`
   Returns: `{ token }`
 
 - `POST /api/widget/revoke`
@@ -250,6 +260,6 @@ Recommended coverage areas:
 
 - User CRUD, search, sort, pagination, soft delete.
 - Tenant/application isolation.
-- Valid widget init, expired timestamp, reused nonce, invalid origin.
+- Valid widget init, invalid origin, subdomain spoofing rejection.
 - Revoked and expired widget tokens.
 - Angular loading, empty, error, create, edit, delete, and validation states.

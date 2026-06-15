@@ -53,9 +53,6 @@ describe('WidgetAuthService', () => {
     const params = {
       appId: 'app-1',
       clientId: 'client-1',
-      signature: 'sig',
-      timestamp: Date.now(),
-      nonce: 'nonce-1',
     };
 
     service.initSession(params).subscribe((res) => {

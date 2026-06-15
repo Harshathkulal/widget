@@ -24,25 +24,37 @@ describe('origin utils', () => {
     it('should allow exact matching origins', () => {
       expect(
         isOriginAllowed(
-          'https://app.example.com',
-          ['https://app.example.com'],
+          'https://portal.acme.com',
+          ['https://portal.acme.com'],
           false,
         ),
       ).toBe(true);
     });
 
-    it('should allow wildcard origins', () => {
-      expect(isOriginAllowed('https://any.com', ['*'], false)).toBe(true);
+    it('should reject wildcard entries in allowed list', () => {
+      expect(isOriginAllowed('https://any.com', ['*'], false)).toBe(false);
     });
 
     it('should reject origins not in allowed list', () => {
       expect(
-        isOriginAllowed('https://evil.com', ['https://app.example.com'], false),
+        isOriginAllowed('https://evil.com', ['https://portal.acme.com'], false),
+      ).toBe(false);
+    });
+
+    it('should reject prefix or partial domain matches', () => {
+      expect(
+        isOriginAllowed(
+          'https://portal.acme.com.evil.com',
+          ['https://portal.acme.com'],
+          false,
+        ),
       ).toBe(false);
     });
 
     it('should reject invalid origin strings', () => {
-      expect(isOriginAllowed('not-a-url', ['*'], false)).toBe(false);
+      expect(
+        isOriginAllowed('not-a-url', ['https://portal.acme.com'], false),
+      ).toBe(false);
     });
 
     it('should allow dev origins when allowDevOrigins is true', () => {

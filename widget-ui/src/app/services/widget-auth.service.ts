@@ -40,9 +40,6 @@ export class WidgetAuthService {
   initSession(params: {
     appId: string;
     clientId: string;
-    signature: string;
-    timestamp: number;
-    nonce: string;
   }): Observable<{ token: string }> {
     return this.http
       .post<{ token: string }>(

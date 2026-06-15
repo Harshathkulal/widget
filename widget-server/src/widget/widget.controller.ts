@@ -7,7 +7,7 @@ import {
   Headers,
   Ip,
 } from '@nestjs/common';
-import { Request } from 'express';
+import { Throttle } from '@nestjs/throttler';
 import { WidgetService } from './widget.service';
 import { InitWidgetDto } from './dto/init-widget.dto';
 import { WidgetAuthGuard } from '../auth/guards/widget-auth.guard';
@@ -17,6 +17,7 @@ export class WidgetController {
   constructor(private readonly widgetService: WidgetService) {}
 
   @Post('init')
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   async init(
     @Body() initWidgetDto: InitWidgetDto,
     @Headers('origin') origin: string,

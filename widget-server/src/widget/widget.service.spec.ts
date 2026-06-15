@@ -1,23 +1,17 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { JwtService } from '@nestjs/jwt';
-import {
-  UnauthorizedException,
-  ConflictException,
-  NotFoundException,
-} from '@nestjs/common';
-import * as crypto from 'crypto';
+import { UnauthorizedException, NotFoundException } from '@nestjs/common';
 import { WidgetService } from './widget.service';
 import { WidgetSession } from './entities/widget.entity';
 import { Application } from '../applications/entities/application.entity';
-import { encryptSecret } from '../common/utils/crypto';
 
 const mockApp: Application = {
   id: 'app-1',
   tenantId: 'tenant-1',
   appName: 'Test App',
   clientId: 'client-1',
-  clientSecretHash: '',
+  clientSecretHash: 'encrypted-secret',
   allowedDomains: ['http://localhost:4200'],
   status: 'ACTIVE',
   createdAt: new Date(),
@@ -30,7 +24,6 @@ const mockSession: WidgetSession = {
   applicationId: 'app-1',
   tokenHash: 'TEMP',
   origin: 'http://localhost:4200',
-  nonce: 'nonce-123',
   isRevoked: false,
   expiresAt: new Date(Date.now() + 15 * 60 * 1000),
   createdAt: new Date(),
@@ -53,12 +46,8 @@ const mockJwtService = {
 
 describe('WidgetService', () => {
   let service: WidgetService;
-  const originalEnv = process.env.NODE_ENV;
 
   beforeEach(async () => {
-    process.env.NODE_ENV = 'development';
-    mockApp.clientSecretHash = encryptSecret('test-client-secret');
-
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         WidgetService,
@@ -78,34 +67,16 @@ describe('WidgetService', () => {
     jest.clearAllMocks();
   });
 
-  afterEach(() => {
-    process.env.NODE_ENV = originalEnv;
+  const buildValidDto = () => ({
+    appId: mockApp.id,
+    clientId: mockApp.clientId,
   });
-
-  const buildValidDto = () => {
-    const timestamp = Date.now();
-    const nonce = `nonce-${Date.now()}`;
-    const message = `${mockApp.id}:${mockApp.clientId}:${timestamp}:${nonce}`;
-    const signature = crypto
-      .createHmac('sha256', 'test-client-secret')
-      .update(message)
-      .digest('hex');
-
-    return {
-      appId: mockApp.id,
-      clientId: mockApp.clientId,
-      signature,
-      timestamp,
-      nonce,
-    };
-  };
 
   describe('initSession()', () => {
     it('should create a widget session and return a JWT token', async () => {
       const dto = buildValidDto();
 
       mockApplicationRepo.findOne.mockResolvedValue(mockApp);
-      mockWidgetSessionRepo.findOne.mockResolvedValue(null);
       mockWidgetSessionRepo.create.mockReturnValue(mockSession);
       mockWidgetSessionRepo.save
         .mockResolvedValueOnce(mockSession)
@@ -123,6 +94,7 @@ describe('WidgetService', () => {
       expect(mockWidgetSessionRepo.save).toHaveBeenCalledTimes(2);
       expect(mockJwtService.sign).toHaveBeenCalledWith(
         expect.objectContaining({
+          sub: mockSession.id,
           tenantId: mockApp.tenantId,
           applicationId: mockApp.id,
         }),
@@ -140,43 +112,18 @@ describe('WidgetService', () => {
     it('should throw when origin is not allowed', async () => {
       mockApplicationRepo.findOne.mockResolvedValue({
         ...mockApp,
-        allowedDomains: ['https://prod.example.com'],
+        allowedDomains: ['https://portal.acme.com'],
       });
 
       await expect(
         service.initSession(buildValidDto(), 'https://evil.com'),
       ).rejects.toThrow(UnauthorizedException);
-    });
-
-    it('should throw when timestamp is expired', async () => {
-      mockApplicationRepo.findOne.mockResolvedValue(mockApp);
-
-      const dto = buildValidDto();
-      dto.timestamp = Date.now() - 10 * 60 * 1000;
 
       await expect(
-        service.initSession(dto, 'http://localhost:4200'),
-      ).rejects.toThrow(UnauthorizedException);
-    });
-
-    it('should throw when nonce was already used', async () => {
-      mockApplicationRepo.findOne.mockResolvedValue(mockApp);
-      mockWidgetSessionRepo.findOne.mockResolvedValue(mockSession);
-
-      await expect(
-        service.initSession(buildValidDto(), 'http://localhost:4200'),
-      ).rejects.toThrow(ConflictException);
-    });
-
-    it('should throw when HMAC signature is invalid', async () => {
-      mockApplicationRepo.findOne.mockResolvedValue(mockApp);
-      mockWidgetSessionRepo.findOne.mockResolvedValue(null);
-
-      const dto = buildValidDto();
-      dto.signature = 'deadbeef'.repeat(8);
-
-      await expect(
-        service.initSession(dto, 'http://localhost:4200'),
+        service.initSession(
+          buildValidDto(),
+          'https://portal.acme.com.evil.com',
+        ),
       ).rejects.toThrow(UnauthorizedException);
     });
   });
