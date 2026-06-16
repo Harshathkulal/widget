@@ -5,6 +5,7 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
+    "build:widget": "ng build && vite build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
@@ -28,6 +29,8 @@
     "jsdom": "^28.0.0",
     "prettier": "^3.8.1",
     "typescript": "~5.9.2",
+    "vite": "^7.3.2",
+    "vite-plugin-singlefile": "^2.3.3",
     "vitest": "^4.0.8"
   }
 }
