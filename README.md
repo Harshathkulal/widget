@@ -24,7 +24,7 @@ npm.cmd run db:seed
 Production widget config:
 
 ```html
-<script src="https://d6fd9641.widget-a2g.pages.dev/widget.js"></script>
+<script src="https:widget-a2g.pages.dev/widget.js"></script>
 
 <user-management-widget app-id="5577ff0f-8bb5-4afb-bbf2-367cff369700" client-id="wgt_app_f8e93095642bc63404da54f0"
 theme="light" page-size="10">
@@ -41,7 +41,7 @@ The widget only needs `app-id` and `client-id` attributes.
 Copy-paste integration for production:
 
 ```html
-<script src="https://d6fd9641.widget-a2g.pages.dev/widget.js"></script>
+<script src="https://widget-a2g.pages.dev/widget.js"></script>
 
 <user-management-widget
   app-id="APP_ID"
