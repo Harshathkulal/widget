@@ -31,6 +31,9 @@ theme="light" page-size="10">
 </user-management-widget>
 ```
 
+Example:
+https://host-app-pink.vercel.app/
+
 The widget only needs `app-id` and `client-id` attributes.
 
 ## Embed Integration
