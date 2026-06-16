@@ -1,6 +1,6 @@
 # User Management Widget
 
-Secure embeddable user-management widget built with Angular custom elements, NestJS, PostgreSQL, and Docker.
+embeddable user-management widget built with Angular custom elements, NestJS, PostgreSQL, and Docker.
 
 ## Run It
 
@@ -24,11 +24,11 @@ npm.cmd run db:seed
 Demo widget config:
 
 ```html
-<script src="http://localhost:4200/main.js" async></script>
-<user-management-widget app-id="6881a854-e0b4-4e9e-a11f-3257b1bf14ce" client-id="wgt_app_81e1549058187b6a"
+<script src="https://d6fd9641.widget-a2g.pages.dev/widget.js" async></script>
+
+<user-management-widget app-id="5577ff0f-8bb5-4afb-bbf2-367cff369700" client-id="wgt_app_f8e93095642bc63404da54f0"
 theme="light" page-size="10">
 </user-management-widget>
-<script type="module" src="http://localhost:4200/main.js"></script>
 ```
 
 The widget only needs `app-id` and `client-id` attributes.
@@ -38,7 +38,7 @@ The widget only needs `app-id` and `client-id` attributes.
 Copy-paste integration for production:
 
 ```html
-<script src="https://cdn.example.com/widget.js"></script>
+<script src="https://d6fd9641.widget-a2g.pages.dev/widget.js"></script>
 
 <user-management-widget
   app-id="APP_ID"
